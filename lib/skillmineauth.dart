@@ -1,3 +1,3 @@
 library skillmineauth;
 
-export 'AuthUi/LoginScreen.dart';
+export 'AuthUi/login_screen.dart';

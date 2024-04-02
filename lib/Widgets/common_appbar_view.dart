@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../AuthUi/Theme.dart';
+import '../AuthUi/theme.dart';
 import '../AuthUi/text_styles.dart';
 
 
@@ -32,14 +32,14 @@ class CommonAppbarView extends StatelessWidget {
           SizedBox(
             height: AppBar().preferredSize.height,
             child: Padding(
-              padding: EdgeInsets.only(top: 8, left: 8, right: 8),
-              child: Container(
+              padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
+              child: SizedBox(
                 width: AppBar().preferredSize.height - 8,
                 height: AppBar().preferredSize.height - 8,
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    borderRadius: BorderRadius.all(
+                    borderRadius: const BorderRadius.all(
                       Radius.circular(32.0),
                     ),
                     onTap: onBackClick,

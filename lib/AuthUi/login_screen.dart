@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
+// import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../Widgets/common_appbar_view.dart';
@@ -9,7 +10,7 @@ import '../Widgets/remove_focuse.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function(Map) onLoginResult;
-   LoginScreen({super.key,required this.onLoginResult});
+   const LoginScreen({super.key,required this.onLoginResult});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -19,9 +20,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
   String _errorEmail = '';
-  TextEditingController _emailController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   String _errorPassword = '';
-  TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   var dio = Dio();
 
   Map<String, dynamic> failedMap = {
@@ -85,11 +86,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     // _forgotYourPasswordUI(),
                     CommonButton(
-                      padding: EdgeInsets.only(left: 24, right: 24, bottom: 16),
+                      padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
                       buttonText: "Login",
                       onTap: () {
                         if (_allValidation()){
-                          widget.onLoginResult({"jks":"Jatin kumar sahoo"});
+                          widget.onLoginResult({"login":"Login Successfully"});
                         }
                         // NavigationServices(context).gotoTabScreen();
                       },
@@ -127,20 +128,24 @@ class _LoginScreenState extends State<LoginScreen> {
     return isValid;
   }
 
-  GETMETHODCALL({required String api, required Function fun}) async {
-    print("<<>>>>>API CALL>>>>>>\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" + api);
+  getMethodCall({required String api, required Function fun}) async {
+    if (kDebugMode) {
+      print("<<>>>>>API CALL>>>>>>\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n$api");
+    }
     try {
       Response response = await dio.get(api);
       if (response.statusCode == 200) {
         try {
           fun(response.data);
         } catch (e) {
-          print("Message is: " + e.toString());
+          if (kDebugMode) {
+            print("Message is: $e");
+          }
         }
       } else {
         fun(failedMap);
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       /* if (e.type == DioErrorType.CONNECT_TIMEOUT) {
         fun(failedMap);
       }
@@ -153,6 +158,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (e.type == DioErrorType.RESPONSE) {
         fun(failedMap);
       }*/
+      if (kDebugMode) {
+        print("Message is: $e");
+      }
       fun(failedMap);
     }
   }

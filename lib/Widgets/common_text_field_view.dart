@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../AuthUi/Theme.dart';
+import '../AuthUi/theme.dart';
 import '../AuthUi/text_styles.dart';
 
 
@@ -20,7 +20,7 @@ class CommonTextFieldView extends StatelessWidget {
   final double? height;
   final BuildContext? contextNew;
 
-   CommonTextFieldView({
+   const CommonTextFieldView({
     Key? key,
     this.hintText = '',
     this.isObscureText = false,
@@ -76,14 +76,6 @@ class CommonTextFieldView extends StatelessWidget {
                     style: TextStyles(context).getRegularStyle().copyWith(color: ((enable == false)?( Theme.of(context).disabledColor):AppTheme.primaryTextColor)),
                     obscureText: isObscureText,
                     cursorColor: Theme.of(context).primaryColor,
-                    onEditingComplete: () {
-                      if(context != null){
-                        FocusScope.of(context)?.nextFocus();
-                      }else if(context != null){
-                        FocusScope.of(context).nextFocus();
-                      }
-
-                    },
                     decoration: InputDecoration(
                       errorText: null,
                       counterText: "",
