@@ -11,7 +11,7 @@ import '../Widgets/remove_focuse.dart';
 
 class RegistrationScreen extends StatefulWidget {
   final VoidCallback onLogInBtnCallBack;
-  final Function(Map<String,dynamic>) onSignUpResponse;
+  final Function(Map) onSignUpResponse;
   const RegistrationScreen({super.key,required this.onLogInBtnCallBack,required this.onSignUpResponse});
 
   @override
