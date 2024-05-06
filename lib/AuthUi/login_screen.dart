@@ -70,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Image.asset("packages/skillmineauth/assets/images/logo.png"),
+                child: Image.asset("skillmineauth/assets/images/logo.png"),
               ),
               const SizedBox(
                 height: 8,
@@ -91,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
             SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Image.asset("packages/skillmineauth/assets/images/logo.png"),
+                child: Image.asset("skillmineauth/assets/images/logo.png"),
               ),
             ),
             const SizedBox(
