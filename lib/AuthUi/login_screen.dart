@@ -65,37 +65,34 @@ class _LoginScreenState extends State<LoginScreen> {
         onClick: () {
           FocusScope.of(context).requestFocus(FocusNode());
         },
-        child: (isLoading)?Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Image.asset("assets/images/logo.png"),
-            ),
-            const SizedBox(
-              height: 8,
-            ),
-            SizedBox(
-              height:size.height*0.1,
-              width: size.width*0.2,
-              child:  SpinKitThreeInOut(
-                size: 50.0,
-                color: Colors.blue,
-                itemBuilder: (BuildContext context, int index) {
-                  return DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: index.isEven ? Colors.red : Colors.green,
-                    ),
-                  );
-                },
+        child: (isLoading)?SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Image.asset("assets/images/logo.png"),
               ),
-            ),
+              const SizedBox(
+                height: 8,
+              ),
+              SizedBox(
+                height:size.height*0.1,
+                width: size.width*0.2,
+                child:  const SpinKitThreeInOut(
+                  size: 50.0,
+                  color: Colors.blue,
+                ),
+              ),
 
-          ],
+            ],
+          ),
         ):(errorMessage != null && errorMessage !="")?Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Image.asset("assets/images/logo.png"),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Image.asset("assets/images/logo.png"),
+              ),
             ),
             const SizedBox(
               height: 8,
