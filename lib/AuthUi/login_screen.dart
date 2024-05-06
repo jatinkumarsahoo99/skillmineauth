@@ -77,7 +77,17 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(
               height:size.height*0.1,
               width: size.width*0.2,
-              child: SpinKitThreeInOut(),
+              child:  SpinKitThreeInOut(
+                size: 50.0,
+                color: Colors.blue,
+                itemBuilder: (BuildContext context, int index) {
+                  return DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: index.isEven ? Colors.red : Colors.green,
+                    ),
+                  );
+                },
+              ),
             ),
 
           ],
