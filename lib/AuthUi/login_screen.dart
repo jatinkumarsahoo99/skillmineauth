@@ -68,9 +68,11 @@ class _LoginScreenState extends State<LoginScreen> {
         child: (isLoading)?SafeArea(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Image.asset("images/logo.png"),
+              const Padding(
+                padding:  EdgeInsets.all(16.0),
+                child: Image(
+                  image: AssetImage('images/logo.png'), // Replace with your actual image path
+                ),
               ),
               const SizedBox(
                 height: 8,
@@ -88,10 +90,12 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ):(errorMessage != null && errorMessage !="")?Column(
           children: [
-            SafeArea(
+            const SafeArea(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Image.asset("images/logo.png"),
+                padding:  EdgeInsets.all(16.0),
+                child: Image(
+                  image: AssetImage('images/logo.png'), // Replace with your actual image path
+                ),
               ),
             ),
             const SizedBox(
