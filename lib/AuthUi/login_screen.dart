@@ -1,11 +1,8 @@
-import 'package:dio/dio.dart';
-// import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 import '../Widgets/common_appbar_view.dart';
 import '../Widgets/common_button.dart';
 import '../Widgets/common_text_field_view.dart';
+import '../Widgets/my_widgets.dart';
 import '../Widgets/remove_focuse.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -23,12 +20,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   String _errorPassword = '';
   final TextEditingController _passwordController = TextEditingController();
-  var dio = Dio();
-
-  Map<String, dynamic> failedMap = {
-    "status": "failed",
-    "message": "error",
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
                       buttonText: "Login",
                       onTap: () {
+                        MyWidget.showLoading(context);
                         if (_allValidation()){
                           widget.onLoginResult({"login":"Login Successfully"});
                         }
@@ -128,41 +120,6 @@ class _LoginScreenState extends State<LoginScreen> {
     return isValid;
   }
 
-  getMethodCall({required String api, required Function fun}) async {
-    if (kDebugMode) {
-      print("<<>>>>>API CALL>>>>>>\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n$api");
-    }
-    try {
-      Response response = await dio.get(api);
-      if (response.statusCode == 200) {
-        try {
-          fun(response.data);
-        } catch (e) {
-          if (kDebugMode) {
-            print("Message is: $e");
-          }
-        }
-      } else {
-        fun(failedMap);
-      }
-    } on DioException catch (e) {
-      /* if (e.type == DioErrorType.CONNECT_TIMEOUT) {
-        fun(failedMap);
-      }
-      if (e.type == DioErrorType.RECEIVE_TIMEOUT) {
-        fun(failedMap);
-      }
-      if (e.type == DioErrorType.DEFAULT) {
-        fun(failedMap);
-      }
-      if (e.type == DioErrorType.RESPONSE) {
-        fun(failedMap);
-      }*/
-      if (kDebugMode) {
-        print("Message is: $e");
-      }
-      fun(failedMap);
-    }
-  }
+
 
 }
