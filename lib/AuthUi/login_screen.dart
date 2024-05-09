@@ -1,11 +1,17 @@
+import 'dart:developer';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../Widgets/common_appbar_view.dart';
 import '../Widgets/common_button.dart';
 import '../Widgets/common_text_field_view.dart';
+import '../Widgets/dynamic_signin_grid.dart';
 import '../Widgets/my_widgets.dart';
 import '../Widgets/remove_focuse.dart';
 import '../Widgets/three_in_out.dart';
 import '../api_service/api_service_methods.dart';
+import '../model/LoginSettingModel.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function(Map) onLoginResult;
@@ -24,12 +30,13 @@ class _LoginScreenState extends State<LoginScreen> {
   ApiService apiService = ApiService();
   bool isLoading = true;
   String? errorMessage;
+  String? appId;
 
   getApiId() {
     try {
       Map<String, dynamic> postData = {
         "view_type": "login",
-        "client_id": "05c3ba54-d186-4ee4-8001-b97242143cc2",
+        "client_id": widget.clientId,
         "response_type": "token",
         "scope": "openid",
         "redirect_uri":
@@ -38,18 +45,95 @@ class _LoginScreenState extends State<LoginScreen> {
       apiService.postMethodCall(
           api: "https://nightly-accounts-api.complyment.com/authz-srv/authz/generate",
           fun: (map) {
-            isLoading = false;
-            errorMessage = "client with client_id 05c3ba54-d186-4ee4-8001-b97242143cc27  not found";
-            setState(() {
+            if (kDebugMode) {
+              debugPrint(">>>>>>>>>>>>>>>>>>$map");
+            }
 
-            });
-
+            if (map is Map && map['success'] == true && map['data'] != null) {
+              isLoading = false;
+              errorMessage = null;
+              appId = map['data']['id'] ?? "";
+              getLoginConfig(appId);
+            } else if (map != null && map['error'] != null) {
+              isLoading = false;
+              errorMessage = map['error']['error_description'] ?? "";
+            } else {
+              isLoading = false;
+              errorMessage = "client with client_id ${widget.clientId}  not found";
+            }
+            setState(() {});
           },
           json: postData);
     } catch (e) {
       debugPrint(">>>>>>>>>>>>>>>>exception $e");
+      isLoading = false;
+      errorMessage = "client with client_id ${widget.clientId}  not found";
+      setState(() {});
     }
   }
+
+  LoginSettingModel? loginSettingModel;
+  // List<LoginProviders>? loginSocialProviders = [];
+  List<LoginProviders>? loginClassicalProviders = [];
+  List<SignInOption> options =   [
+    // const SignInOption(text: "Google" ,icon:FontAwesomeIcons.google),
+    // const SignInOption(text: "Facebook" ,icon:FontAwesomeIcons.facebook),
+    // const SignInOption(text: "Twitter" ,icon:FontAwesomeIcons.twitter),
+    // const SignInOption(text: "Twitter" ,icon:FontAwesomeIcons.twitter),
+    // const SignInOption(text: "Twitter" ,icon:FontAwesomeIcons.twitter),
+    // const SignInOption(text: "Twitter" ,icon:FontAwesomeIcons.twitter),
+  ];
+
+  getLoginConfig(String? appId) {
+    appId = "6ae0f710-73d7-490c-b570-fb0e76623e53";
+    try {
+      apiService.postMethodCall(
+          api:
+              "https://nightly-accounts-api.complyment.com/public-srv/login/settings/by/requestid/$appId",
+          fun: (map) {
+            if (map is Map && map['success'] == true && map['data'] != null) {
+              loginSettingModel = LoginSettingModel.fromJson(map as Map<String, dynamic>);
+              log(">>>>>data ${loginSettingModel?.toJson()}");
+              // loginSocialProviders?.clear();
+              // options.clear();
+              loginSettingModel?.data?.loginProviders?.forEach((element) {
+                if(element.providerType.toString().toLowerCase() == "social"){
+                  // loginSocialProviders?.add(element);
+                  options.add( SignInOption(text: (element.providerDisplayName??"") ,icon:getIcon(element.providerDisplayName??"") ,color: Colors.redAccent));
+                }
+                if(element.providerType.toString().toLowerCase() == "classical"){
+                  loginClassicalProviders?.add(element);
+                }
+              });
+              setState(() {
+
+              });
+            } else {
+              loginSettingModel = null;
+            }
+          });
+    } catch (e) {
+      debugPrint(">>>>>>>>>>>>>>>>exception $e");
+    }
+  }
+
+
+
+  getIcon(String type){
+    switch(type){
+      case "google":
+        return FontAwesomeIcons.google;
+      case "facebook":
+        return FontAwesomeIcons.facebook;
+      case "Twitter":
+        return FontAwesomeIcons.twitter;
+      case "Linkedin":
+        return FontAwesomeIcons.linkedinIn;
+      default:
+        return FontAwesomeIcons.sprayCan;
+    }
+  }
+
 
   @override
   void initState() {
@@ -57,135 +141,103 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    Size size  = MediaQuery.of(context).size;
-    return Scaffold(
-      body: RemoveFocuse(
-        onClick: () {
-          FocusScope.of(context).requestFocus(FocusNode());
-        },
-        child: (isLoading)?SafeArea(
-          child: Column(
-            children: [
-              const Padding(
-                padding:  EdgeInsets.all(16.0),
-                child: Image(
-                  image: AssetImage('images/logo.png'), // Replace with your actual image path
-                ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              SizedBox(
-                height:size.height*0.1,
-                width: size.width*0.2,
-                child:  const SpinKitThreeInOut(
-                  size: 50.0,
-                  color: Colors.blue,
-                ),
-              ),
-
-            ],
-          ),
-        ):(errorMessage != null && errorMessage !="")?Column(
-          children: [
-            const SafeArea(
-              child: Padding(
-                padding:  EdgeInsets.all(16.0),
-                child: Image(
-                  image: AssetImage('images/logo.png'), // Replace with your actual image path
-                ),
+  Widget getLogInWidget(String? titleText,{bool isEmail = true}){
+    return  Expanded(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Image(
+                image: AssetImage('images/logo.png',
+                    package: "skillmineauth"), // Replace with your actual image path
               ),
             ),
-            const SizedBox(
-              height: 8,
+            CommonTextFieldView(
+              controller: _emailController,
+              errorText: _errorEmail,
+              titleText: titleText??"Email Id",
+              padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
+              hintText: titleText??"Email Id",
+              keyboardType: TextInputType.emailAddress,
+              onChanged: (String txt) {},
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+            CommonTextFieldView(
+              titleText: "Password",
+              padding: const EdgeInsets.only(left: 24, right: 24),
+              hintText: "Enter your password",
+              isObscureText: true,
+              onChanged: (String txt) {},
+              errorText: _errorPassword,
+              controller: _passwordController,
+            ),
+            // _forgotYourPasswordUI(),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
               child: Text(
-                errorMessage??"",
+                "Don't have account yet? SignUp",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).disabledColor,
+                  color: Colors.blue,
                 ),
               ),
             ),
 
-          ],
-        ): Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            CommonAppbarView(
-              iconData: Icons.arrow_back,
-              titleText: "Login",
-              onBackClick: () {
-                Navigator.pop(context);
+            CommonButton(
+              padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
+              buttonText: "Login",
+              onTap: () {
+                MyWidget.showLoading(context);
+                if (_allValidation()) {
+                  widget.onLoginResult({"login": "Login Successfully"});
+                }
+                // NavigationServices(context).gotoTabScreen();
               },
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        "Login With Email",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).disabledColor,
-                        ),
+            const Padding(
+              padding:  EdgeInsets.only(left: 6.0,right: 6,bottom: 1),
+              child:  Row(
+                children: [
+                  Expanded(
+                    child: Divider(
+                      thickness: 1.0, // Adjust divider thickness
+                      color: Colors.grey, // Adjust divider color
+                    ),
+                  ),
+                  Padding(
+                    padding:  EdgeInsets.all(16.0),
+                    child: Text(
+                      "or Login with",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey,
                       ),
                     ),
-                    CommonTextFieldView(
-                      controller: _emailController,
-                      errorText: _errorEmail,
-                      titleText: "Email",
-                      padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
-                      hintText: "Enter your email",
-                      keyboardType: TextInputType.emailAddress,
-                      onChanged: (String txt) {},
+                  ),
+                  Expanded(
+                    child: Divider(
+                      thickness: 1.0, // Adjust divider thickness
+                      color: Colors.grey, // Adjust divider color
                     ),
-                    CommonTextFieldView(
-                      titleText: "Password",
-                      padding: const EdgeInsets.only(left: 24, right: 24),
-                      hintText: "Enter your password",
-                      isObscureText: true,
-                      onChanged: (String txt) {},
-                      errorText: _errorPassword,
-                      controller: _passwordController,
-                    ),
-                    // _forgotYourPasswordUI(),
-                    const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text(
-                        "Don't have account yet? SignUp",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ),
-                    CommonButton(
-                      padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
-                      buttonText: "Login",
-                      onTap: () {
-                        MyWidget.showLoading(context);
-                        if (_allValidation()) {
-                          widget.onLoginResult({"login": "Login Successfully"});
-                        }
-                        // NavigationServices(context).gotoTabScreen();
-                      },
-                    ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+            ),
+
+
+            Padding(
+              padding: const EdgeInsets.only(left: 4.0,right: 4,bottom: 2,top: 2),
+              child: DynamicSignInGrid(
+                signInOptions: options,
+                onSignInSelected: (option) {
+                  // Handle sign-in selection based on the chosen option
+                  debugPrint('Selected: ${option.text}');
+                },
               ),
             )
           ],
@@ -193,6 +245,90 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return Scaffold(
+      body: RemoveFocuse(
+        onClick: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+        child: (isLoading)
+            ? const SafeArea(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Image(
+                        image: AssetImage('images/logo.png',
+                            package: "skillmineauth"), // Replace with your actual image path
+                      ),
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    SpinKitThreeInOut(
+                      size: 40.0,
+                      color: Colors.blue,
+                    ),
+                  ],
+                ),
+              )
+            : (errorMessage != null && errorMessage != "")
+                ? SafeArea(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Image(
+                            image: AssetImage('images/logo.png',
+                                package: "skillmineauth"), // Replace with your actual image path
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            errorMessage ?? "",
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Column(
+                    // mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      CommonAppbarView(
+                        iconData: Icons.arrow_back,
+                        titleText: "Login",
+                        onBackClick: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      getLogInWidget("Email Id",isEmail: true)
+                    ],
+                  ),
+      ),
+    );
+  }
+
+
 
   bool _allValidation() {
     bool isValid = true;
