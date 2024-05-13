@@ -75,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
   LoginSettingModel? loginSettingModel;
   // List<LoginProviders>? loginSocialProviders = [];
   List<LoginProviders>? loginClassicalProviders = [];
-  List<SignInOption> options =   [
+  List<SignInOption> socialLoginOptions =   [
     // const SignInOption(text: "Google" ,icon:FontAwesomeIcons.google),
     // const SignInOption(text: "Facebook" ,icon:FontAwesomeIcons.facebook),
     // const SignInOption(text: "Twitter" ,icon:FontAwesomeIcons.twitter),
@@ -84,8 +84,20 @@ class _LoginScreenState extends State<LoginScreen> {
     // const SignInOption(text: "Twitter" ,icon:FontAwesomeIcons.twitter),
   ];
 
+  List<SignInOption> classicalLoginOptions =   [
+    // const SignInOption(text: "Google" ,icon:FontAwesomeIcons.google),
+    // const SignInOption(text: "Facebook" ,icon:FontAwesomeIcons.facebook),
+    // const SignInOption(text: "Twitter" ,icon:FontAwesomeIcons.twitter),
+    // const SignInOption(text: "Twitter" ,icon:FontAwesomeIcons.twitter),
+    // const SignInOption(text: "Twitter" ,icon:FontAwesomeIcons.twitter),
+    // const SignInOption(text: "Twitter" ,icon:FontAwesomeIcons.twitter),
+  ];
+  LoginProviders? selectedClassicalProvider;
+  int selectedClassicalIndex = 0;
+
+
   getLoginConfig(String? appId) {
-    appId = "6ae0f710-73d7-490c-b570-fb0e76623e53";
+    // appId = "6ae0f710-73d7-490c-b570-fb0e76623e53";
     try {
       apiService.postMethodCall(
           api:
@@ -95,19 +107,28 @@ class _LoginScreenState extends State<LoginScreen> {
               loginSettingModel = LoginSettingModel.fromJson(map as Map<String, dynamic>);
               log(">>>>>data ${loginSettingModel?.toJson()}");
               // loginSocialProviders?.clear();
-              // options.clear();
+              socialLoginOptions.clear();
+              classicalLoginOptions.clear();
+              int i=0;
               loginSettingModel?.data?.loginProviders?.forEach((element) {
+
                 if(element.providerType.toString().toLowerCase() == "social"){
                   // loginSocialProviders?.add(element);
-                  options.add( SignInOption(text: (element.providerDisplayName??"") ,icon:getIcon(element.providerDisplayName??"") ,color: Colors.redAccent));
+                  socialLoginOptions.add( SignInOption(text: (element.providerDisplayName??"") ,icon:getIcon(element.providerDisplayName??"") ,index: i));
                 }
                 if(element.providerType.toString().toLowerCase() == "classical"){
                   loginClassicalProviders?.add(element);
+                  classicalLoginOptions.add( SignInOption(text: (element.providerDisplayName??"") ,icon:getIcon1(element.providerDisplayName??"") ,index: i));
                 }
+                i= i+1;
               });
-              setState(() {
 
-              });
+              if(loginClassicalProviders?.length == 1){
+                selectedClassicalProvider = loginClassicalProviders?[0];
+                selectedClassicalIndex = 0;
+              }
+
+              setState(() {});
             } else {
               loginSettingModel = null;
             }
@@ -129,10 +150,23 @@ class _LoginScreenState extends State<LoginScreen> {
         return FontAwesomeIcons.twitter;
       case "Linkedin":
         return FontAwesomeIcons.linkedinIn;
+      case "login with email":
+        return Icons.mail;
+      case "login with mobile":
+        return FontAwesomeIcons.mobile;
       default:
         return FontAwesomeIcons.sprayCan;
     }
   }
+
+  getIcon1(String type){
+    if(type.toString().toLowerCase().contains("email")){
+      return Icons.mail;
+    }else{
+      return FontAwesomeIcons.mobile;
+    }
+  }
+
 
 
   @override
@@ -154,6 +188,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     package: "skillmineauth"), // Replace with your actual image path
               ),
             ),
+
+            ((loginClassicalProviders?.length ??0)>1)?
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0,right: 8,bottom: 1,top: 1),
+              child: DynamicSignInGrid(
+                signInOptions: classicalLoginOptions,
+                crossAxisCount: 2,
+                childAspectRatio: 3,
+                onSignInSelected: (option) {
+                  // Handle sign-in selection based on the chosen option
+                  debugPrint('Selected: ${option.text}');
+                },
+              ),
+            ):const SizedBox(),
+            
             CommonTextFieldView(
               controller: _emailController,
               errorText: _errorEmail,
@@ -233,7 +282,8 @@ class _LoginScreenState extends State<LoginScreen> {
             Padding(
               padding: const EdgeInsets.only(left: 4.0,right: 4,bottom: 2,top: 2),
               child: DynamicSignInGrid(
-                signInOptions: options,
+                signInOptions: socialLoginOptions,
+                crossAxisCount: 3,
                 onSignInSelected: (option) {
                   // Handle sign-in selection based on the chosen option
                   debugPrint('Selected: ${option.text}');

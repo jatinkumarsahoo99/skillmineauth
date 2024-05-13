@@ -4,11 +4,13 @@ class SignInOption {
   final String text;
   final IconData? icon; // Optional icon path
   final Color? color; // Optional custom color
+  final int? index;
 
   const SignInOption({
     required this.text,
     this.icon,
     this.color,
+    this.index
   });
 }
 
@@ -17,26 +19,28 @@ class SignInOption {
 class DynamicSignInGrid extends StatelessWidget {
   final List<SignInOption> signInOptions;
   final Function(SignInOption) onSignInSelected;
+  final int crossAxisCount;
+  final double? childAspectRatio;
 
   const DynamicSignInGrid({
     Key? key,
     required this.signInOptions,
     required this.onSignInSelected,
+    required this.crossAxisCount,
+     this.childAspectRatio
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: GridView.count(
-        crossAxisCount: 3, // Adjust column count as needed
-        physics: const NeverScrollableScrollPhysics(), // Prevent unnecessary scrolling
-        shrinkWrap: true, // Wrap content to avoid excessive space
-        childAspectRatio: 2.0, // Adjust aspect ratio for desired button shape
-        mainAxisSpacing: 8.0, // Add spacing between buttons
-        crossAxisSpacing: 8.0, // Add spacing between columns
-        padding: const EdgeInsets.all(3),
-        children: signInOptions.map((option) => _buildSignInButton(option, context)).toList(),
-      ),
+    return GridView.count(
+      crossAxisCount: crossAxisCount, // Adjust column count as needed
+      physics: const NeverScrollableScrollPhysics(), // Prevent unnecessary scrolling
+      shrinkWrap: true, // Wrap content to avoid excessive space
+      childAspectRatio: childAspectRatio??2.0, // Adjust aspect ratio for desired button shape
+      mainAxisSpacing: 8.0, // Add spacing between buttons
+      crossAxisSpacing: 8.0, // Add spacing between columns
+      padding: const EdgeInsets.all(3),
+      children: signInOptions.map((option) => _buildSignInButton(option, context)).toList(),
     );
   }
 
