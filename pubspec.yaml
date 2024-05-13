@@ -1,6 +1,6 @@
 name: skillmineauth
 description: skillmine auth.
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/jatinkumarsahoo99/skillmineauth.git
 
 environment:
@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   dio: ^5.4.2+1
-  font_awesome_flutter:
+  font_awesome_flutter: ^10.7.0
 
 dev_dependencies:
   flutter_test:

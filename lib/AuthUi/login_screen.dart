@@ -11,7 +11,7 @@ import '../Widgets/my_widgets.dart';
 import '../Widgets/remove_focuse.dart';
 import '../Widgets/three_in_out.dart';
 import '../api_service/api_service_methods.dart';
-import '../model/LoginSettingModel.dart';
+import '../model/login_setting_model.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function(Map) onLoginResult;
@@ -116,6 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // loginSocialProviders?.add(element);
                   socialLoginOptions.add( SignInOption(text: (element.providerDisplayName??"") ,icon:getIcon(element.providerDisplayName??"") ,index: i));
                 }
+
                 if(element.providerType.toString().toLowerCase() == "classical"){
                   loginClassicalProviders?.add(element);
                   classicalLoginOptions.add( SignInOption(text: (element.providerDisplayName??"") ,icon:getIcon1(element.providerDisplayName??"") ,index: i));
@@ -300,7 +301,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    // Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: RemoveFocuse(
         onClick: () {
